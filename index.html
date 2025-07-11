@@ -1,0 +1,340 @@
+<h2>Bicarbonate Buffer System Virtual Lab</h2>
+<p><strong>Objective:</strong> To understand and determine how the bicarbonate buffer system regulates the acid-base balance in blood, maintaining a stable pH within the physiological range.</p>
+
+<style>
+.glassware-animation {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+.glass-item {
+  width: 60px;
+  height: 100px;
+  background: linear-gradient(to top, #cde 50%, transparent 50%);
+  border: 2px solid #99b;
+  border-radius: 5px;
+  animation: fillEffect 2s infinite alternate;
+  position: relative;
+  text-align: center;
+  font-size: 0.8em;
+  color: #333;
+}
+.glass-item::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+}
+@keyframes fillEffect {
+  0% { background: linear-gradient(to top, #cde 10%, transparent 90%); }
+  100% { background: linear-gradient(to top, #cde 80%, transparent 20%); }
+}
+
+.glass-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.pour-animation {
+  position: relative;
+  animation: pourDrop 1.5s ease-in-out forwards;
+}
+
+@keyframes pourDrop {
+  0% { transform: translateY(-20px) scaleY(0.5); opacity: 0; }
+  50% { transform: translateY(10px) scaleY(1.2); opacity: 1; }
+  100% { transform: translateY(50px) scaleY(0.8); opacity: 0; }
+}
+
+.drop {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 8px;
+  height: 20px;
+  background: #0080ff;
+  border-radius: 50% 50% 40% 40%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.drop-acid { background: red; }
+.drop-base { background: green; }
+
+
+<h3>Materials Required</h3>
+<div class="glassware-animation">
+  <div class="glass-item" data-label="Beaker">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Beaker.svg" alt="Beaker" />
+  </div>
+  <div class="glass-item" data-label="Test Tube">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Test_tube_icon.svg" alt="Test Tube" />
+  </div>
+  <div class="glass-item" data-label="Pipette">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Pipette_icon.svg" alt="Pipette" />
+  </div>
+</div>
+  <div class="glass-item" data-label="Test Tube"></div>
+  <div class="glass-item" data-label="Pipette"></div>
+</div>
+<br/>
+<ul>
+  <li>Simulated blood sample</li>
+  <li>0.1 M HCl and NaOH solutions</li>
+  <li>pH meter or pH strips</li>
+  <li>Pipettes, beakers/test tubes</li>
+  <li>Stirring rod, gloves, goggles</li>
+</ul>
+
+<h3>Procedure</h3>
+<ol>
+  <li>Observe and record the baseline pH using the sliders below.</li>
+  <li>Simulate acid addition by increasing PCO₂ or decreasing HCO₃⁻.</li>
+  <li>Record the new pH value displayed.</li>
+  <li>Simulate base addition by decreasing PCO₂ or increasing HCO₃⁻.</li>
+  <li>Record and compare the changes to the initial reading.</li>
+</ol>
+
+    <label for="hco3">HCO₃⁻ Concentration (mEq/L): <span id="hco3Val">24</span></label>
+    <input type="range" id="hco3" min="10" max="40" value="24" />
+
+    <label for="pco2">PCO₂ (mmHg): <span id="pco2Val">40</span></label>
+    <input type="range" id="pco2" min="20" max="80" value="40" />
+
+    <div class="output" style="padding: 1em; margin: 1em 0; border-radius: 10px; transition: all 0.3s ease;">
+      <strong>Calculated pH:</strong> <span id="phVal">7.40</span><br/>
+      <strong>Status:</strong> <span id="status" class="status">Normal</span>
+    </div>
+
+    <div class="graph">
+      <h3>pH Trend</h3>
+      <canvas id="phGraph" width="600" height="200"></canvas>
+    </div>
+
+    <div>
+  <h3>Simulate Experiment</h3>
+  <button onclick="startPour('acid')">Add Acid (↑PCO₂)</button>
+  <button onclick="startPour('base')">Add Base (↑HCO₃⁻)</button>
+</div>
+<div style="margin-top: 1rem;">
+  <button onclick="resetExperiment()">🔁 Reset Experiment</button>
+</div>
+<br/>
+<div class="cases">
+      <h3>Clinical Case Simulator</h3>
+      <select id="caseSelect">
+        <option value="normal">-- Select a Case --</option>
+        <option value="resp_acidosis">Respiratory Acidosis</option>
+        <option value="resp_alkalosis">Respiratory Alkalosis</option>
+        <option value="metab_acidosis">Metabolic Acidosis</option>
+        <option value="metab_alkalosis">Metabolic Alkalosis</option>
+      </select>
+      <button onclick="applyCase()">Apply Case</button>
+    </div>
+
+    <div class="quiz-section">
+      <h3>Quick Quiz</h3>
+      <div class="question">
+        <p>Which component is primarily responsible for respiratory compensation?</p>
+        <select id="quiz1">
+          <option value="">-- Choose an Answer --</option>
+          <option value="lungs">Lungs</option>
+          <option value="kidneys">Kidneys</option>
+          <option value="liver">Liver</option>
+        </select>
+      </div>
+      <div class="question">
+        <p>Which value typically increases during metabolic alkalosis?</p>
+        <select id="quiz2">
+          <option value="">-- Choose an Answer --</option>
+          <option value="hco3">HCO₃⁻</option>
+          <option value="pco2">PCO₂</option>
+          <option value="ph">H⁺</option>
+        </select>
+      </div>
+      <button onclick="checkAnswers()">Check Answers</button>
+      <p id="quizResult"></p>
+    </div>
+
+<div class="results">
+  <h3>Observation & Conclusion</h3>
+  <p>The bicarbonate buffer system helps maintain blood pH within a narrow range even after simulated acid/base addition. The small pH shifts observed reflect the physiological buffering system's efficiency.</p>
+</div>
+
+<div class="postlab">
+  <h3>Post-Lab Reflection</h3>
+  <label for="reflection">How do the lungs and kidneys compensate in this buffer system?</label>
+  <textarea id="reflection" rows="4" placeholder="Write your response here..."></textarea>
+</div>
+
+<div style="margin-top: 2rem;">
+  <button onclick="finishExperiment()">✅ Finish Lab</button>
+</div>
+
+<div id="certificate" style="display:none; background:#e0ffe0; padding:1em; margin-top:1em; border: 1px solid #99cc99;">
+  <h3>🎓 Lab Completed!</h3>
+  <p>Congratulations! You’ve successfully completed the Bicarbonate Buffer System Virtual Lab.</p>
+</div>
+</div>
+<script>
+    const hco3Input = document.getElementById('hco3');
+    const pco2Input = document.getElementById('pco2');
+    const hco3Val = document.getElementById('hco3Val');
+    const pco2Val = document.getElementById('pco2Val');
+    const phVal = document.getElementById('phVal');
+    const status = document.getElementById('status');
+const outputBox = document.querySelector('.output');
+    const caseSelect = document.getElementById('caseSelect');
+    const quizResult = document.getElementById('quizResult');
+    const canvas = document.getElementById('phGraph');
+    const ctx = canvas.getContext('2d');
+    let phHistory = [];
+
+    function updateValues() {
+      const hco3 = parseFloat(hco3Input.value);
+      const pco2 = parseFloat(pco2Input.value);
+      const ph = 6.1 + Math.log10(hco3 / (0.03 * pco2));
+
+      hco3Val.textContent = hco3;
+      pco2Val.textContent = pco2;
+      phVal.textContent = ph.toFixed(2);
+
+      if (ph < 7.35) {
+  status.textContent = 'Acidosis';
+  status.style.color = 'red';
+  outputBox.style.backgroundColor = '#ffe6e6';
+  outputBox.style.border = '2px solid red';
+} else if (ph > 7.45) {
+  status.textContent = 'Alkalosis';
+  status.style.color = 'blue';
+  outputBox.style.backgroundColor = '#e6f0ff';
+  outputBox.style.border = '2px solid blue';
+} else {
+  status.textContent = 'Normal';
+  status.style.color = 'green';
+  outputBox.style.backgroundColor = '#e6ffe6';
+  outputBox.style.border = '2px solid green';
+}
+
+      phHistory.push(ph);
+      if (phHistory.length > 60) phHistory.shift();
+      drawGraph();
+    }
+
+    function applyCase() {
+      const selectedCase = caseSelect.value;
+      switch (selectedCase) {
+        case 'resp_acidosis':
+          hco3Input.value = 24;
+          pco2Input.value = 60;
+          break;
+        case 'resp_alkalosis':
+          hco3Input.value = 24;
+          pco2Input.value = 25;
+          break;
+        case 'metab_acidosis':
+          hco3Input.value = 15;
+          pco2Input.value = 40;
+          break;
+        case 'metab_alkalosis':
+          hco3Input.value = 32;
+          pco2Input.value = 40;
+          break;
+        default:
+          hco3Input.value = 24;
+          pco2Input.value = 40;
+      }
+      updateValues();
+    }
+
+    function checkAnswers() {
+      const q1 = document.getElementById('quiz1').value;
+      const q2 = document.getElementById('quiz2').value;
+      let score = 0;
+
+      if (q1 === 'lungs') score++;
+      if (q2 === 'hco3') score++;
+
+      quizResult.textContent = `You got ${score} out of 2 correct.`;
+    }
+
+    function drawGraph() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.moveTo(0, 200 - (phHistory[0] - 6.8) * 100);
+
+      for (let i = 1; i < phHistory.length; i++) {
+        const x = (i / phHistory.length) * canvas.width;
+        const y = 200 - (phHistory[i] - 6.8) * 100;
+        ctx.lineTo(x, y);
+      }
+
+      ctx.strokeStyle = '#3366cc';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    hco3Input.addEventListener('input', updateValues);
+    pco2Input.addEventListener('input', updateValues);
+    updateValues();
+  function animateAcidAddition() {
+  let steps = 10;
+  let interval = setInterval(() => {
+    if (steps-- <= 0) return clearInterval(interval);
+    pco2Input.value = parseFloat(pco2Input.value) + 1;
+    updateValues();
+  }, 300);
+}
+
+function animateBaseAddition() {
+  let steps = 10;
+  let interval = setInterval(() => {
+    if (steps-- <= 0) return clearInterval(interval);
+    hco3Input.value = parseFloat(hco3Input.value) + 1;
+    updateValues();
+  }, 300);
+}
+function resetExperiment() {
+  hco3Input.value = 24;
+  pco2Input.value = 40;
+  phHistory = [];
+  updateValues();
+  quizResult.textContent = "";
+  document.getElementById("quiz1").value = "";
+  document.getElementById("quiz2").value = "";
+  document.getElementById("reflection").value = "";
+  const cert = document.getElementById("certificate");
+  if (cert) cert.style.display = 'none';
+}
+
+function finishExperiment() {
+  document.getElementById("certificate").style.display = "block";
+}
+function startPour(type) {
+  const drop = document.createElement('div');
+  drop.classList.add('drop', 'pour-animation');
+  if (type === 'acid') {
+    drop.classList.add('drop-acid');
+    document.body.appendChild(drop);
+    animateAcidAddition();
+  } else {
+    drop.classList.add('drop-base');
+    document.body.appendChild(drop);
+    animateBaseAddition();
+  }
+  setTimeout(() => drop.remove(), 1500);
+}
+</script>
+</body>
+</html>
